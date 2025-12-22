@@ -23,8 +23,8 @@ app.listen(PORT, () => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     if (username === "admin" && password === "bakery2025") {
-        res.json({ success: true });
+        res.json({ success: true, message: "Login successful!" });
     } else {
-        res.status(401).json({ success: false });
+        res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 });
