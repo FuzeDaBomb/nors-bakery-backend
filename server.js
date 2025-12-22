@@ -5,25 +5,36 @@ require("dotenv").config();
 
 const app = express();
 
-// 1. Middleware (Must be at the top)
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Essential for reading login data
 
-// 2. Routes (Move Login here!)
+// LOGIN MUST GO HERE (Before any other routes)
 app.post('/login', (req, res) => {
+    console.log("Login attempt received!"); // This will show in Render logs
     const { username, password } = req.body;
     if (username === "admin" && password === "bakery2025") {
-        res.json({ success: true });
-    } else {
-        res.status(401).json({ success: false });
+        return res.json({ success: true });
     }
+    return res.status(401).json({ success: false });
 });
 
 app.use("/auth", require("./routes/auth"));
 app.use("/transactions", require("./routes/transactions"));
 
-// 3. Start Server (This MUST be the very last thing)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+app.put('/update-muffin', async (req, res) => {
+    const { price } = req.body;
+    
+    // This updates the 'price' column for 'Chocolate Muffin' in your Supabase table
+    const { data, error } = await pool.query(
+        "UPDATE products SET price = $1 WHERE name = 'Chocolate Muffin'",
+        [price]
+    );
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ success: true, message: "Muffin price updated to $" + price });
 });
