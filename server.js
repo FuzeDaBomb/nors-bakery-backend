@@ -5,12 +5,13 @@ require("dotenv").config();
 
 const app = express();
 
+// 1. Middleware
 app.use(cors());
-app.use(express.json()); // Essential for reading login data
+app.use(express.json()); 
 
-// LOGIN MUST GO HERE (Before any other routes)
+// 2. Login Route
 app.post('/login', (req, res) => {
-    console.log("Login attempt received!"); // This will show in Render logs
+    console.log("Login attempt received!"); 
     const { username, password } = req.body;
     if (username === "admin" && password === "bakery2025") {
         return res.json({ success: true });
@@ -18,11 +19,7 @@ app.post('/login', (req, res) => {
     return res.status(401).json({ success: false });
 });
 
-app.use("/auth", require("./routes/auth"));
-app.use("/transactions", require("./routes/transactions"));
-
-const PORT = process.env.PORT || 5000;
-// Route to update muffin price
+// 3. Update Price Route (For ANY cake)
 app.put('/update-price', async (req, res) => {
     const { name, price } = req.body;
     try {
@@ -30,29 +27,24 @@ app.put('/update-price', async (req, res) => {
             "UPDATE products SET price = $1 WHERE name = $2 RETURNING *",
             [price, name]
         );
-        
+
         if (result.rowCount === 0) {
-            return res.json({ success: false, message: "Cake not found. Check the spelling!" });
+            return res.status(404).json({ success: false, message: "Item not found!" });
         }
-        
-        res.json({ success: true, message: `${name} price updated to RM${price}!` });
+
+        res.json({ success: true, message: `Successfully updated ${name} to RM${price}` });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Error updating database" });
+        console.error(err.message);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
+
+// 4. External Routes
+app.use("/auth", require("./routes/auth"));
+app.use("/transactions", require("./routes/transactions"));
+
+// 5. START SERVER (Always at the very bottom)
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-app.put('/update-muffin', async (req, res) => {
-    const { price } = req.body;
-    
-    // This updates the 'price' column for 'Chocolate Muffin' in your Supabase table
-    const { data, error } = await pool.query(
-        "UPDATE products SET price = $1 WHERE name = 'Chocolate Muffin'",
-        [price]
-    );
-
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true, message: "Muffin price updated to $" + price });
 });
