@@ -22,29 +22,19 @@ app.post('/login', (req, res) => {
 // 3. Update Price Route (For ANY cake)
 app.put('/update-price', async (req, res) => {
     const { name, price } = req.body;
-    
-    // 1. Convert price to a float (decimal number)
-    const numericPrice = parseFloat(price);
-
-    // 2. Check if it's a valid number
-    if (isNaN(numericPrice)) {
-        return res.status(400).json({ success: false, message: "Invalid price format" });
-    }
-
     try {
+        // Change this to 'norsbakery' to match your primary table
         const result = await pool.query(
-            "UPDATE products SET price = $1 WHERE name = $2 RETURNING *",
-            [numericPrice, name] // Use the converted number here
+            "UPDATE norsbakery SET price = $1 WHERE name = $2 RETURNING *",
+            [parseFloat(price), name]
         );
 
         if (result.rowCount === 0) {
-            return res.status(404).json({ success: false, message: "Item not found!" });
+            return res.status(404).json({ success: false, message: "Cake name not found!" });
         }
-
-        res.json({ success: true, message: `Successfully updated ${name} to RM${numericPrice}` });
+        res.json({ success: true, message: `Successfully updated ${name}!` });
     } catch (err) {
-        console.error("Database Error:", err.message); // This will show specifically what failed in Render Logs
-        res.status(500).json({ success: false, message: "Server error: " + err.message });
+        res.status(500).json({ success: false, message: "Database Error: " + err.message });
     }
 });
 
