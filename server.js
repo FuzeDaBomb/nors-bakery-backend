@@ -22,14 +22,9 @@ app.listen(PORT, () => {
 // Login Route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-
-    // Replace these with your desired admin credentials
-    const ADMIN_USER = "admin";
-    const ADMIN_PASS = "bakery2025"; 
-
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-        res.json({ success: true, message: "Login successful!" });
+    if (username === "admin" && password === "bakery2025") {
+        res.json({ success: true });
     } else {
-        res.status(401).json({ success: false, message: "Invalid credentials" });
+        res.status(401).json({ success: false });
     }
 });
