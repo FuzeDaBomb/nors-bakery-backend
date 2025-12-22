@@ -22,6 +22,21 @@ app.use("/auth", require("./routes/auth"));
 app.use("/transactions", require("./routes/transactions"));
 
 const PORT = process.env.PORT || 5000;
+// Route to update muffin price
+app.put('/update-muffin', async (req, res) => {
+    const { price } = req.body;
+    try {
+        // This updates the 'price' column for the 'Chocolate Muffin'
+        const result = await pool.query(
+            "UPDATE products SET price = $1 WHERE name = 'Chocolate Muffin' RETURNING *",
+            [price]
+        );
+        res.json({ success: true, message: `Price updated to $${price}!` });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ success: false, message: "Database error" });
+    }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
