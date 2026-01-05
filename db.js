@@ -14,7 +14,7 @@ pool.connect((err, client, release) => {
   if (err) {
     return console.error('❌ Database Connection Error:', err.message);
   }
-  console.log('✅ BACKEND SUCCESSFULLY CONNECTED TO SUPABASE!');
+  console.log('✅ BACKEND SUCCESSFULLY CONNECTED TO SUPABASE! YIPEE!!');
   release();
 });
 
