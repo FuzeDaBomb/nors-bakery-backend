@@ -5,11 +5,10 @@ require("dotenv").config();
 
 const app = express();
 
-// 1. Middleware
+
 app.use(cors());
 app.use(express.json()); 
 
-// 2. Login Route
 app.post('/login', (req, res) => {
     console.log("Login attempt received!"); 
     const { username, password } = req.body;
@@ -19,11 +18,11 @@ app.post('/login', (req, res) => {
     return res.status(401).json({ success: false });
 });
 
-// 3. Update Price Route (For ANY cake)
+
 app.put('/update-price', async (req, res) => {
     const { name, price } = req.body;
     try {
-        // Change this to 'norsbakery' to match your primary table
+
         const result = await pool.query(
             "UPDATE norsbakery SET price = $1 WHERE name = $2 RETURNING *",
             [parseFloat(price), name]
@@ -38,16 +37,12 @@ app.put('/update-price', async (req, res) => {
     }
 });
 
-// 4. External Routes
+
 app.use("/auth", require("./routes/auth"));
 app.use("/transactions", require("./routes/transactions"));
 
-// 5. START SERVER (Always at the very bottom)
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
+const PORT = process.env.PORT || 5000;
 app.get('/products', async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM norsbakery ORDER BY id ASC");
@@ -56,3 +51,8 @@ app.get('/products', async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
