@@ -24,7 +24,7 @@ app.put('/update-price', async (req, res) => {
     try {
 
         const result = await pool.query(
-            "UPDATE norsbakery SET price = $1 WHERE name = $2 RETURNING *",
+            "UPDATE products SET price = $1 WHERE name = $2 RETURNING *",
             [parseFloat(price), name]
         );
 
@@ -45,10 +45,13 @@ app.use("/transactions", require("./routes/transactions"));
 const PORT = process.env.PORT || 5000;
 app.get('/products', async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM norsbakery ORDER BY id ASC");
+        // Change 'norsbakery' to 'products' to match your Supabase table
+        const result = await pool.query("SELECT * FROM products ORDER BY id ASC"); 
         res.json(result.rows);
     } catch (err) {
-        res.status(500).send("Server Error");
+        console.error("DB Error:", err.message);
+        // Send JSON instead of plain text "Server Error"
+        res.status(500).json({ error: "Database query failed", details: err.message });
     }
 });
 
