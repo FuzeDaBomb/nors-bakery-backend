@@ -56,3 +56,34 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+app.post('/register-profile', async (req, res) => {
+    const { id, email, full_name } = req.body;
+    try {
+        await pool.query(
+            'INSERT INTO users (id, email, full_name) VALUES ($1, $2, $3)',
+            [id, email, full_name]
+        );
+        res.status(201).json({ message: "Profile created successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+app.post('/api/place-order', async (req, res) => {
+    const { userId, items, total, paymentMethod } = req.body;
+    try {
+        // 1. Save the order to your transactions table
+        const result = await pool.query(
+            'INSERT INTO transactions (user_id, total_price, status, payment_method) VALUES ($1, $2, $3, $4) RETURNING id',
+            [userId, total, 'Completed', paymentMethod]
+        );
+        
+        // 2. Clear the user's cart in the database
+        await pool.query('DELETE FROM cart WHERE user_id = $1', [userId]);
+
+        res.json({ success: true, orderId: result.rows[0].id });
+    } catch (err) {
+        res.status(500).json({ error: "Order failed" });
+    }
+});

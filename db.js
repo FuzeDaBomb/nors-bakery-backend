@@ -12,7 +12,7 @@ const pool = new Pool({
 
 pool.connect((err, client, release) => {
   if (err) {
-    return console.error('❌ Database Connection Error:', err.message);
+    return console.error('❌ Database Connection Error:', err.message);x``
   }
   console.log('✅ BACKEND SUCCESSFULLY CONNECTED TO SUPABASE! YIPEE!!');
   release();
